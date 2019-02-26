@@ -143,7 +143,7 @@ class Level {
       return;
     }
 
-    if (obstacleType === 'coin' && movedActor instanceof Actor) {
+    if (obstacleType === 'coin' && movedActor.type === 'coin') {
       this.removeActor(movedActor);
       if (this.noMoreActors('coin')) {
         this.status = 'won';
@@ -154,12 +154,12 @@ class Level {
 }
 
 class LevelParser {
-  constructor(dict) {
+  constructor(dict = {}) {
     this.dict = dict;
   }
 
   actorFromSymbol(sym) {
-    return sym === undefined ? undefined : this.dict[sym];
+    return this.dict[sym];
   }
 
   obstacleFromSymbol(sym) {
@@ -173,11 +173,7 @@ class LevelParser {
     return rows.map(row => row.split('').map(sym => this.obstacleFromSymbol(sym)));
   }
 
-  createActors(rows) {
-    if (rows === undefined || rows.length === 0 || this.dict === undefined || this.dict.length === 0) {
-      return [];
-    }
-    
+  createActors(rows = []) {
     let actors = [];
     rows.forEach((row, y) => row.split('').forEach((sym, x) => {
         if (typeof this.dict[sym] !== 'function') {
