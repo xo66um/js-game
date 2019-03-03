@@ -34,7 +34,7 @@ class Actor {
     this.speed = speed;
   }
 
-  act() {}
+  act() { }
 
   get left() {
     return this.pos.x;
@@ -60,12 +60,26 @@ class Actor {
     if (!(otherActor instanceof Actor)) {
       throw new Error("Аргумент должен быть типа Actor");
     }
-    // не опускайте фигурные скобки
-    if (this === otherActor) return false;
-    if (this.top >= otherActor.bottom) return false;
-    if (this.bottom <= otherActor.top) return false;
-    if (this.right <= otherActor.left) return false;
-    if (this.left >= otherActor.right) return false;
+
+    if (this === otherActor) {
+      return false;
+    }
+
+    if (this.top >= otherActor.bottom) {
+      return false;
+    }
+
+    if (this.bottom <= otherActor.top) {
+      return false;
+    }
+
+    if (this.right <= otherActor.left) {
+      return false;
+    }
+
+    if (this.left >= otherActor.right) {
+      return false;
+    }
 
     return true;
   }
@@ -77,12 +91,9 @@ class Level {
     this.actors = actors;
     this.player = actors.find(actor => actor.type === 'player');
     this.height = grid.length;
-    // если выражение получается слишком длинным,
-    // разбейте его на несолько строк
-    // проверка gridRow в вычислении ширины лишняя
-    // если хочется проверить целостность объекта,
-    // то лучше это сделать выше
-    this.width = this.grid.reduce((result, gridRow) => gridRow !== undefined && result < gridRow.length ? gridRow.length : result, 0);
+    this.width = this.grid.reduce((result, gridRow) => {
+      return result < gridRow.length ? gridRow.length : result;
+    }, 0);
     this.status = null;
     this.finishDelay = 1;
   }
@@ -96,13 +107,14 @@ class Level {
       throw new Error("Аргумент должен быть типа Actor");
     }
 
-    return this.actors.find(actor => otherActor.isIntersect(actor));
+   return this.actors.find(actor => otherActor.isIntersect(actor));
   }
 
   obstacleAt(pos, size) {
     if (!(pos instanceof Vector)) {
       throw new Error("Первый аргумент должен быть типа Vector");
     }
+
     if (!(size instanceof Vector)) {
       throw new Error("Второй аргумент должен быть типа Vector");
     }
@@ -123,9 +135,7 @@ class Level {
     for (let y = top; y < bottom; y++) {
       for (let x = left; x < right; x++) {
         const obstacle = this.grid[y][x];
-        // тут можно использовать более мягкое условие
-        // if (obstacle)
-        if (obstacle !== undefined) {
+        if (obstacle) {
           return obstacle;
         }
       }
@@ -154,8 +164,6 @@ class Level {
       this.removeActor(movedActor);
       if (this.noMoreActors('coin')) {
         this.status = 'won';
-        // лишняя строчка
-        return;
       }
     }
   }
@@ -182,19 +190,15 @@ class LevelParser {
   }
 
   createActors(rows = []) {
-    // если значение присваивается переменной 1 раз,
-    // то лучше использовать const
-    let actors = [];
+    const actors = [];
     rows.forEach((row, y) => row.split('').forEach((sym, x) => {
-      // форматирование
-      // дубрирование логики actorFromSymbol
-        if (typeof this.dict[sym] !== 'function') {
-          return;
-        }
-        const actor = new this.dict[sym](new Vector(x, y));
-        if (actor instanceof Actor) {
-          actors.push(actor);
-        }
+      if (typeof this.actorFromSymbol(sym) !== 'function') {
+        return;
+      }
+      const actor = new this.dict[sym](new Vector(x, y));
+      if (actor instanceof Actor) {
+        actors.push(actor);
+      }
     }));
     return actors;
   }
@@ -213,7 +217,7 @@ class Fireball extends Actor {
     return 'fireball';
   }
 
-  getNextPosition(time=1) {
+  getNextPosition(time = 1) {
     return this.pos.plus(this.speed.times(time));
   }
 
@@ -268,8 +272,7 @@ class Coin extends Actor {
   }
 
   updateSpring(time = 1) {
-    // скобки можно опустить
-    this.spring += (this.springSpeed * time);
+    this.spring += this.springSpeed * time;
   }
 
   getSpringVector() {
@@ -295,9 +298,6 @@ class Player extends Actor {
     return 'player';
   }
 }
-
-// такие комментирии лучше не оставлять в коде
-// test
 
 const actorDict = {
   '@': Player,
