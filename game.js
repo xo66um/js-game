@@ -60,6 +60,7 @@ class Actor {
     if (!(otherActor instanceof Actor)) {
       throw new Error("Аргумент должен быть типа Actor");
     }
+    // не опускайте фигурные скобки
     if (this === otherActor) return false;
     if (this.top >= otherActor.bottom) return false;
     if (this.bottom <= otherActor.top) return false;
@@ -76,7 +77,11 @@ class Level {
     this.actors = actors;
     this.player = actors.find(actor => actor.type === 'player');
     this.height = grid.length;
-
+    // если выражение получается слишком длинным,
+    // разбейте его на несолько строк
+    // проверка gridRow в вычислении ширины лишняя
+    // если хочется проверить целостность объекта,
+    // то лучше это сделать выше
     this.width = this.grid.reduce((result, gridRow) => gridRow !== undefined && result < gridRow.length ? gridRow.length : result, 0);
     this.status = null;
     this.finishDelay = 1;
@@ -90,7 +95,7 @@ class Level {
     if (!(otherActor instanceof Actor)) {
       throw new Error("Аргумент должен быть типа Actor");
     }
-    
+
     return this.actors.find(actor => otherActor.isIntersect(actor));
   }
 
@@ -118,6 +123,8 @@ class Level {
     for (let y = top; y < bottom; y++) {
       for (let x = left; x < right; x++) {
         const obstacle = this.grid[y][x];
+        // тут можно использовать более мягкое условие
+        // if (obstacle)
         if (obstacle !== undefined) {
           return obstacle;
         }
@@ -147,6 +154,7 @@ class Level {
       this.removeActor(movedActor);
       if (this.noMoreActors('coin')) {
         this.status = 'won';
+        // лишняя строчка
         return;
       }
     }
@@ -174,8 +182,12 @@ class LevelParser {
   }
 
   createActors(rows = []) {
+    // если значение присваивается переменной 1 раз,
+    // то лучше использовать const
     let actors = [];
     rows.forEach((row, y) => row.split('').forEach((sym, x) => {
+      // форматирование
+      // дубрирование логики actorFromSymbol
         if (typeof this.dict[sym] !== 'function') {
           return;
         }
@@ -256,6 +268,7 @@ class Coin extends Actor {
   }
 
   updateSpring(time = 1) {
+    // скобки можно опустить
     this.spring += (this.springSpeed * time);
   }
 
@@ -283,6 +296,7 @@ class Player extends Actor {
   }
 }
 
+// такие комментирии лучше не оставлять в коде
 // test
 
 const actorDict = {
